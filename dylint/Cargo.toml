@@ -21,7 +21,7 @@ heck = "0.3.3"
 if_chain = { version = "1.0.2", optional = true }
 lazy_static = "1.4.0"
 log = "0.4.14"
-semver = "1.0.4"
+semver = "1.0.6"
 serde = "1.0.130"
 serde_json = "1.0.72"
 tempfile = "3.2.0"
