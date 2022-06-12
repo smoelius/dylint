@@ -272,21 +272,33 @@ fn package_id(source_id: SourceId, package_root: &Path) -> Result<PackageId> {
         .no_deps()
         .exec()?;
 
+    let packages = metadata
+        .packages
+        .iter()
+        .map(|package| {
+            let path = package
+                .manifest_path
+                .parent()
+                .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+            Ok(if path == package_root {
+                Some(package)
+            } else {
+                None
+            })
+        })
+        .map(Result::transpose)
+        .flatten()
+        .collect::<Result<Vec<_>>>()?;
+
     ensure!(
-        metadata.packages.len() <= 1,
-        "Library is not in its own workspace: {}",
+        packages.len() <= 1,
+        "Found multiple packages in `{}`",
         package_root.to_string_lossy()
     );
 
-    let package = metadata
-        .packages
+    let package = packages
         .first()
         .ok_or_else(|| anyhow!("Found no packages in `{}`", package_root.to_string_lossy()))?;
-
-    assert_eq!(
-        metadata.workspace_root,
-        package.manifest_path.parent().unwrap()
-    );
 
     PackageId::new(&package.name, &package.version.to_string(), source_id)
 }
