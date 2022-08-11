@@ -9,7 +9,7 @@ use dylint_internal::{
 };
 use lazy_static::lazy_static;
 use std::{
-    env::consts,
+    env::{consts, current_dir},
     ffi::OsStr,
     fmt::Debug,
     path::{Path, PathBuf, MAIN_SEPARATOR},
@@ -169,6 +169,7 @@ fn warn_if_empty(opts: &Dylint, name_toolchain_map: &NameToolchainMap) -> Result
 
 fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
     let name_toolchain_map = name_toolchain_map.get_or_try_init()?;
+    let current_dir = current_dir().with_context(|| "Could not get current directory")?;
 
     let name_width = name_toolchain_map
         .keys()
@@ -189,11 +190,15 @@ fn list_libs(name_toolchain_map: &NameToolchainMap) -> Result<()> {
                 let parent = path
                     .parent()
                     .ok_or_else(|| anyhow!("Could not get parent directory"))?;
+                let location = parent
+                    .strip_prefix(&current_dir)
+                    .unwrap_or(parent)
+                    .to_string_lossy();
                 println!(
-                    "{:<name_width$} {:<toolchain_width$} {}",
+                    "{:<name_width$}  {:<toolchain_width$}  {}",
                     name,
                     toolchain,
-                    parent.to_string_lossy(),
+                    location,
                     name_width = name_width,
                     toolchain_width = toolchain_width
                 );
