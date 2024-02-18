@@ -218,7 +218,7 @@ fn is_call_with_mut_ref<'tcx>(
         if func.const_fn_def().map_or(true, |(def_id, _)| {
             !cx.tcx.is_diagnostic_item(sym::deref_mut_method, def_id)
         });
-        let (locals, constants) = collect_locals_and_constants(cx, mir, path, args);
+        let (locals, constants) = collect_locals_and_constants(cx, mir, path, args.into_iter().map(|arg| &arg.node));
         if locals.iter().any(|local| is_mut_ref_arg(mir, local))
             || constants.iter().any(|constant| is_const_ref(constant));
         then {
@@ -262,7 +262,7 @@ fn collect_locals_and_constants<'tcx>(
     cx: &LateContext<'tcx>,
     mir: &'tcx Body<'tcx>,
     path: &[BasicBlock],
-    args: &[Operand<'tcx>],
+    args: impl Iterator<Item = &'tcx Operand<'tcx>>,
 ) -> (BitSet<Local>, Vec<&'tcx ConstOperand<'tcx>>) {
     let mut locals_narrowly = BitSet::new_empty(mir.local_decls.len());
     let mut locals_widely = BitSet::new_empty(mir.local_decls.len());
@@ -303,8 +303,8 @@ fn collect_locals_and_constants<'tcx>(
                         WIDENING.iter().any(|path| match_def_path(cx, def_id, path))
                     });
                     for arg in args {
-                        let mut_ref_operand_place = mut_ref_operand_place(cx, mir, arg);
-                        let arg_place = arg.place();
+                        let mut_ref_operand_place = mut_ref_operand_place(cx, mir, &arg.node);
+                        let arg_place = arg.node.place();
                         if_chain! {
                             if followed_narrowly && !widening;
                             if let Some(arg_place) = mut_ref_operand_place.or({
