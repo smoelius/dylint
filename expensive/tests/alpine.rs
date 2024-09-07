@@ -20,14 +20,8 @@ fn alpine() {
 
     // smoelius: Don't use `assert_cmd::Command` here because it would hide the output.
     let status = Command::new("docker")
-        .args([
-            "build",
-            "--progress=plain",
-            "-f",
-            "tests/alpine/Dockerfile",
-            ".",
-        ])
-        .current_dir("../..")
+        .args(["build", "--progress=plain", "-f", "tests/Dockerfile", "."])
+        .current_dir("..")
         .status()
         .unwrap();
     assert!(status.success());
