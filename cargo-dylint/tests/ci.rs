@@ -491,12 +491,13 @@ fn fmt() {
         let path = entry.path();
         let parent = path.parent().unwrap();
 
+        dbg!(parent);
+
         Command::new("cargo")
             .args(["+nightly", "fmt", "--check"])
             .current_dir(parent)
             .assert()
-            .try_success()
-            .unwrap_or_else(|_| panic!("formatting failed for `{}`", parent.display()));
+            .success();
     }
 }
 
