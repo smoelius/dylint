@@ -1,0 +1,2 @@
+disallowed-methods = ["rustc_middle::hir::map::Map::span"]
+disallowed-types = ["proc_macro2::Span"]
