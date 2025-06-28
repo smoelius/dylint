@@ -1,0 +1,41 @@
+[package]
+name = "disallowed_pattern"
+version = "4.0.0"
+authors = ["Samuel E. Moelius III <sam@moeli.us>"]
+description = "description goes here"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "238edf273d195c8e472851ebd60571f77f978ac8" }
+libloading = "0.8"
+match_hir = { path = "../../../match_hir" }
+serde = "1.0"
+syn = "2.0"
+tempfile = "3.17"
+
+dylint_linting = { path = "../../../utils/linting" }
+
+[dev-dependencies]
+dylint_testing = { path = "../../../utils/testing" }
+
+[lints.rust.unexpected_cfgs]
+level = "deny"
+check-cfg = ["cfg(dylint_lib, values(any()))"]
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[workspace.metadata.dylint]
+libraries = [
+    { path = "../../general" },
+    { path = "../../supplementary" },
+    { path = "../../testing/clippy" },
+    { path = "../../restriction/*" },
+]

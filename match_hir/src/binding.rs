@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Binding {
     type_name: &'static str,
     span: rustc_span::Span,
